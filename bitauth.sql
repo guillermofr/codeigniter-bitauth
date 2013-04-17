@@ -134,3 +134,19 @@ CREATE TABLE IF NOT EXISTS `bitauth_users` (
 
 INSERT INTO `bitauth_users` (`user_id`, `username`, `password`, `password_last_set`, `password_never_expires`, `remember_me`, `activation_code`, `active`, `forgot_code`, `forgot_generated`, `enabled`, `last_login`, `last_login_ip`) VALUES
 (1, 'admin', '$2a$08$560JEYl2Np/7/6RLc/mq/ecnumuBXig3e.pHh1lnH1pgpk94sTZhu', now(), 0, '', '', 1, '', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 0);
+
+-- ----------------------------
+--  Table structure for `bitauth_permission`
+-- ----------------------------
+
+CREATE TABLE IF NOT EXISTS `bitauth_permission`(
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `group_id` int(10) unsigned NOT NULL,
+  `slug` varchar(48) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- ----------------------------
+--  Records of `bitauth_permission`
+-- ----------------------------
+
+INSERT INTO `bitauth_permission` VALUES ('1', '1', 'admin');COMMIT;

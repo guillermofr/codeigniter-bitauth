@@ -603,9 +603,7 @@ class Bitauth
 			foreach($data['roles'] as $slug)
 			{
 				if(($index = $this->get_role($slug)) !== FALSE)
-				{
-					$this->_set_bit($roles, $index);
-				}
+					$this->db->query("insert into ".$this->_table['permission']." (group_id,slug) values ($id,'$slug')");
 			}
 		}
 
@@ -886,12 +884,10 @@ class Bitauth
 		{
 			if(is_array($data['roles']))
 			{
+				$this->db->query("delete from ".$this->_table['permission']." where group_id = $id");
 				foreach($data['roles'] as $slug)
 				{
-					if(($index = $this->get_role($slug)) !== FALSE)
-					{
-						$this->_set_bit($roles, $index);
-					}
+					$this->db->query("insert into ".$this->_table['permission']." (group_id,slug) values ($id,'$slug')");
 				}
 			}
 			else if(is_numeric($data['roles']))
@@ -900,11 +896,9 @@ class Bitauth
 			}
 		}
 
-		$data['roles'] = $roles;
-
 		$this->db->trans_start();
 
-		$this->db->set($data)->where('group_id', $id)->update($this->_table['groups']);
+		
 
 		// If we were given an array of user id's, set them as the group members
 		if(isset($members))
@@ -950,7 +944,7 @@ class Bitauth
 
 		$this->db->where('group_id', $group_id)->delete($this->_table['groups']);
 		$this->db->where('group_id', $group_id)->delete($this->_table['assoc']);
-
+		$this->db->where('group_id', $group_id)->delete($this->_table['permission']);
 		if($this->db->trans_status() == FALSE)
 		{
 			$this->set_error($this->lang->line('bitauth_del_group_failed'));
@@ -967,15 +961,9 @@ class Bitauth
 	 *
 	 * Check if a user or group has a role
 	 */
-	public function has_role($slug, $mask = NULL)
+	public function has_role($slug, $group_id = NULL)
 	{
-		if($mask === NULL)
-		{
-			$mask = $this->roles;
-		}
-
-		// No point checking, user doesn't have permission
-		if($mask == 0)
+		if($group_id === NULL)
 		{
 			return FALSE;
 		}
@@ -983,12 +971,12 @@ class Bitauth
 		// Make sure it's a valid slug, otherwise don't give permission, even to administrators
 		if(($index = $this->get_role($slug)) !== FALSE)
 		{
-			if($slug != $this->_admin_role && $this->has_role($this->_admin_role, $mask))
+			if($slug != $this->_admin_role && $this->has_role($this->_admin_role, $group_id))
 			{
 				return TRUE;
 			}
 			
-			return $this->_check_bit($mask, $index);
+			return $this->_check_bit($group_id, $slug);
 		}
 
 		return FALSE;
@@ -1518,9 +1506,10 @@ class Bitauth
 	 * Bitauth::_check_bit()
 	 *
 	 */
-	protected function _check_bit($mask, $idx)
+	protected function _check_bit($group_id, $slug)
 	{
-		return strlen($mask) > $idx && (substr($mask, '-'.++$idx, 1) === '1');
+		$q = $this->db->query("select * from ". $this->_table['permission'] ." where group_id = $group_id and slug = '$slug' ");
+		return ($q->num_rows() > 0);
 	}
 
 	/**

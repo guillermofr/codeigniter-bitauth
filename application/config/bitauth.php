@@ -123,7 +123,8 @@ $config['table'] = array(
 	'data'		=> 'bitauth_userdata',	// Optional user information (profile)
 	'groups'	=> 'bitauth_groups',	// Groups
 	'assoc'		=> 'bitauth_assoc',		// Users -> Groups associations
-	'logins'	=> 'bitauth_logins'		// Record of all logins
+	'logins'	=> 'bitauth_logins',		// Record of all logins
+	'permission'=> 'bitauth_permission'		// Table for group permission
 );
 
 /**
